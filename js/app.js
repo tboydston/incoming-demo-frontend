@@ -8,7 +8,7 @@ async function loadData() {
     const addressDataResponse = await fetch("../data/addressData.json");
     addressData = await depositDataResponse.json();
   } catch (error) {
-    console.error("Error:", error);
+    console.error("Error:", error.message);
   }
 
   loadTable(depositData, "BTC");
