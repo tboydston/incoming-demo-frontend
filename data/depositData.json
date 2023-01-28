@@ -1,0 +1,46 @@
+{
+  "BTC": {
+    "chainHeight": 0,
+    "highestDepositBlock": 0,
+    "lastBlockTime": 0,
+    "lastDepositTime": 0,
+    "deposits": [
+      {
+        "xPubHash": "93f50d6676288093c9f58becad57fd65aa12ae70ccd961039dec0ebb080a9868",
+        "index": 1,
+        "path": "m/84'/0'/0'/0/1",
+        "address": "bc1qcp0t2g0s7m6gul7wmuq4q4xjusrz7q5uhutest",
+        "pubKey": "02449dbf873fc99dd194953ab34a076982a1cb014b54063c54c533edd9ee5test"
+      },
+      {
+        "xPubHash": "93f50d6676288093c9f58bec4e57fd65aa12ae70ccd961039dec0ebb080a9868",
+        "index": 2,
+        "path": "m/84'/0'/0'/0/2",
+        "address": "bc1qgl88uxk5d9bmnrvru0ww0th35uzcwv3jytest2",
+        "pubKey": "03a8a72147af8ac933a6f6d2d2ede6172ea0a3187eb33a707a5fd1f993b65test"
+      }
+    ]
+  },
+  "BTCt": {
+    "chainHeight": 0,
+    "highestDepositBlock": 0,
+    "lastBlockTime": 0,
+    "lastDepositTime": 0,
+    "deposits": [
+      {
+        "xPubHash": "93f50d6676288093c9f58becad57fd65aa12ae70ccd961039dec0ebb080a9868",
+        "index": 1,
+        "path": "m/84'/0'/0'/0/1",
+        "address": "bc1qcp0t2g0s7m6gul7wmuq4q4xjusrz7q5uhutest",
+        "pubKey": "02449dbf873fc99dd194953ab34a076982a1cb014b54063c54c533edd9ee5test"
+      },
+      {
+        "xPubHash": "93f50d6676288093c9f58bec4e57fd65aa12ae70ccd961039dec0ebb080a9868",
+        "index": 2,
+        "path": "m/84'/0'/0'/0/2",
+        "address": "bc1qgl88uxk5d9bmnrvru0ww0th35uzcwv3jytest2",
+        "pubKey": "03a8a72147af8ac933a6f6d2d2ede6172ea0a3187eb33a707a5fd1f993b65test"
+      }
+    ]
+  }
+}

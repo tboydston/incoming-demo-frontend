@@ -1,0 +1,32 @@
+{
+  "BTC": {
+    "xPub": "testxpub",
+    "addresses": [
+      {
+        "index": 1,
+        "path": "m/84'/0'/0'/0/1",
+        "address": "bc1qcp0t2g0s7m6gul7wmuq4q4xjusrz7q5uhutest"
+      },
+      {
+        "index": 2,
+        "path": "m/84'/0'/0'/0/2",
+        "address": "bc1qgl88uxk5d9bmnrvru0ww0th35uzcwv3jytest2"
+      }
+    ]
+  },
+  "BTCt": {
+    "xPub": "testxpub",
+    "addresses": [
+      {
+        "index": 1,
+        "path": "m/84'/0'/0'/0/1",
+        "address": "bc1qcp0t2g0s7m6gul7wmuq4q4xjusrz7q5uhutest"
+      },
+      {
+        "index": 2,
+        "path": "m/84'/0'/0'/0/2",
+        "address": "bc1qgl88uxk5d9bmnrvru0ww0th35uzcwv3jytest2"
+      }
+    ]
+  }
+}
