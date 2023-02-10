@@ -3,20 +3,328 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link
+    <!-- <link
       rel="stylesheet"
       href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css"
+    /> -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
+      crossorigin="anonymous"
     />
+    <link rel="stylesheet" type="text/css" href="css/styles.css" />
     <script src="js/app.js"></script>
     <title>Incoming! Crypto Deposit Manager Demo</title>
   </head>
   <body onload="loadData()">
-    <main class="container">
-      <h1>Incoming!</h1>
-      <h3>Last BTC Deposits</h3>
-      <div id="BTC-Deposits"></div>
-      <h3>Last BTC Testnet Deposits</h3>
-      <div id="BTCt-Deposits"></div>
+    <main>
+      <div class="col-lg-8 mx-auto p-4 py-md-5">
+        <header class="d-flex align-items-center pb-3 mb-5 border-bottom">
+          <img
+            class="d-block mx-auto mb-4"
+            src="/img/incoming-logo-full.svg"
+            alt=""
+            width="500"
+          />
+        </header>
+
+        <main>
+          <h1>Demo Incoming! Here</h1>
+          <p class="fs-5">
+            This site is a demo implementation of Incoming! which allows you to
+            deposit funds as a user and follow the deposits as an admin through
+            Telegram.
+          </p>
+          <h1>What is Incoming!</h1>
+          <p class="fs-5">
+            Incoming! is an open-source crypto deposit tracker for Bitcoin and
+            Bitcoin-like( clone coins ) crypto currencies. It generates a string
+            of deterministic addresses, adds these addresses to Bitcoind's
+            wallet, sends them securely to your platforms API, and watches these
+            address for new deposits. When a new deposit is received a
+            notification is sent to your platform as well as to your private
+            Telegram group.
+          </p>
+          <h1>Features</h1>
+          <ul>
+            <li>
+              Self sovereign Deterministic address generation( BIP
+              32,44,49,84,141 )
+            </li>
+            <li>Uses only xPub key so no private keys are exposed</li>
+            <li>
+              Signed API request to platform to confirm authenticity of requests
+            </li>
+            <li>
+              Integration with Telegram to notify admin of incoming deposits or
+              chain issues
+            </li>
+            <li>
+              Only makes outgoing request so no need to open additional ports
+            </li>
+          </ul>
+
+          <div class="mb-5">
+            <a
+              href="https://github.com/tboydston/incoming-crypto-deposit-tracking"
+              class="btn btn-primary btn-lg px-4"
+              >Clone from Github</a
+            >
+          </div>
+          <hr />
+          <div class="row g-5">
+            <div class="col-md-6">
+              <h2>How It Works</h2>
+              <p>
+                See Incoming! in action by sending either BTC or TBTC ( Testnet
+                BTC ) to the deposit addresses below. Follow the deposit along
+                in the Incoming! Demo Telegram group.
+              </p>
+              <ol>
+                <li>Join the Incoming Demo Telegram group.</li>
+                <li>Send funds to one of the addresses below.</li>
+                <li>
+                  Receive updated on your deposit through this page as a
+                  customer would and through Telegram as a admin would.
+                </li>
+              </ol>
+
+              <p>
+                <b
+                  >Note: Funds sent to these addresses are considered donations
+                  to the project so either send small amounts or us the
+                  testnet.</b
+                >
+              </p>
+            </div>
+
+            <div class="col-md-6">
+              <h2>Follow Deposits Through Telegram</h2>
+              <p>
+                Scan below or click
+                <a href="https://t.me/+FH6p6s83cuxkY2Q1" target="_blank"
+                  >here</a
+                >
+              </p>
+              <img src="/img/tgQr.png" alt="" width="300" />
+            </div>
+          </div>
+          <hr />
+          <div id="lastDataRefresh"></div>
+          <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link active"
+                id="btc-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#btc-tab-pane"
+                type="button"
+                role="tab"
+                aria-controls="btc-tab-pane"
+                aria-selected="true"
+              >
+                BTC
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link"
+                id="tbtc-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#tbtc-tab-pane"
+                type="button"
+                role="tab"
+                aria-controls="tbtc-tab-pane"
+                aria-selected="false"
+              >
+                TBTC ( Testnet )
+              </button>
+            </li>
+          </ul>
+          <div class="tab-content" id="myTabContent">
+            <div
+              class="tab-pane fade show active"
+              id="btc-tab-pane"
+              role="tabpanel"
+              aria-labelledby="btc-tab"
+              tabindex="0"
+            >
+              <!-- BTC tab content START -->
+              <table class="table">
+                <tbody>
+                  <tr>
+                    <th scope="row" class="table-dark">BTC Chain Data</th>
+                    <td class="table-dark"></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Chain Height</th>
+                    <td id="BTC-chainHeight"></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Last Block Time</th>
+                    <td id="BTC-lastBlockTime"></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Last Deposit Block</th>
+                    <td id="BTC-highestDepositBlock"></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Last Deposit Time</th>
+                    <td id="BTC-lastDepositTime"></td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                <li class="nav-item" role="presentation">
+                  <button
+                    class="nav-link active"
+                    id="pills-BTC-addresses-tab"
+                    data-bs-toggle="pill"
+                    data-bs-target="#pills-BTC-addresses"
+                    type="button"
+                    role="tab"
+                    aria-controls="pills-home"
+                    aria-selected="true"
+                  >
+                    Deposit Addresses
+                  </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button
+                    class="nav-link"
+                    id="pills-BTC-deposits-tab"
+                    data-bs-toggle="pill"
+                    data-bs-target="#pills-BTC-deposits"
+                    type="button"
+                    role="tab"
+                    aria-controls="pills-profile"
+                    aria-selected="false"
+                  >
+                    Deposits
+                  </button>
+                </li>
+              </ul>
+              <div class="tab-content" id="pills-tabContent">
+                <div
+                  class="tab-pane fade show active"
+                  id="pills-BTC-addresses"
+                  role="tabpanel"
+                  aria-labelledby="pills-BTC-addresses-tab"
+                  tabindex="0"
+                >
+                  <div id="BTC-address-table"></div>
+                </div>
+                <div
+                  class="tab-pane fade"
+                  id="pills-BTC-deposits"
+                  role="tabpanel"
+                  aria-labelledby="pills-BTC-deposits-tab"
+                  tabindex="0"
+                >
+                  <div id="BTC-deposit-table"></div>
+                </div>
+              </div>
+
+              <!-- BTC tab content END -->
+            </div>
+
+            <div
+              class="tab-pane fade"
+              id="tbtc-tab-pane"
+              role="tabpanel"
+              aria-labelledby="tbtc-tab"
+              tabindex="0"
+            >
+              <!-- TBTC tab content START -->
+              <table class="table">
+                <tbody>
+                  <tr>
+                    <th scope="row" class="table-dark">TBTC Chain Data</th>
+                    <td class="table-dark"></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Chain Height</th>
+                    <td id="TBTC-chainHeight"></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Last Block Time</th>
+                    <td id="TBTC-lastBlockTime"></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Last Deposit Block</th>
+                    <td id="TBTC-highestDepositBlock"></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Last Deposit Time</th>
+                    <td id="TBTC-lastDepositTime"></td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                <li class="nav-item" role="presentation">
+                  <button
+                    class="nav-link active"
+                    id="pills-TBTC-addresses-tab"
+                    data-bs-toggle="pill"
+                    data-bs-target="#pills-TBTC-addresses"
+                    type="button"
+                    role="tab"
+                    aria-controls="pills-TBTC-addresses"
+                    aria-selected="true"
+                  >
+                    Deposit Addresses
+                  </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button
+                    class="nav-link"
+                    id="pills-TBTC-deposits-tab"
+                    data-bs-toggle="pill"
+                    data-bs-target="#pills-TBTC-deposits"
+                    type="button"
+                    role="tab"
+                    aria-controls="pills-profile"
+                    aria-selected="false"
+                  >
+                    Deposits
+                  </button>
+                </li>
+              </ul>
+              <div class="tab-content" id="pills-tabContent">
+                <div
+                  class="tab-pane fade show active"
+                  id="pills-TBTC-addresses"
+                  role="tabpanel"
+                  aria-labelledby="pills-TBTC-addresses-tab"
+                  tabindex="0"
+                >
+                  TBTC addresses
+                </div>
+                <div
+                  class="tab-pane fade"
+                  id="pills-TBTC-deposits"
+                  role="tabpanel"
+                  aria-labelledby="pills-TBTC-deposits-tab"
+                  tabindex="0"
+                >
+                  TBTC Deposits
+                </div>
+              </div>
+
+              <!-- TBTC tab content END -->
+            </div>
+          </div>
+        </main>
+        <footer class="pt-5 my-5 text-muted border-top"></footer>
+      </div>
     </main>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+      crossorigin="anonymous"
+    ></script>
   </body>
 </html>
