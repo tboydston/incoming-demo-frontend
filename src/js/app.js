@@ -8,6 +8,8 @@ async function loadData() {
     let depositData = await depositDataResponse.json();
 
     updateChainData(depositData, "BTC");
+    updateChainData(depositData, "TBTC");
+
     document.getElementById(
       `lastDataRefresh`
     ).innerHTML = `Data refreshes every ${
@@ -21,13 +23,18 @@ async function loadData() {
 }
 
 function updateChainData(depositData, coin) {
+  const coinDataName = coin === "TBTC" ? "BTCt" : coin;
+
   document.getElementById(`${coin}-address-table`).innerHTML = "";
   document.getElementById(`${coin}-deposit-table`).innerHTML = "";
 
-  const coinData = depositData[coin];
+  const coinData = depositData[coinDataName];
 
-  let addressTable = createAddressesTable(depositData[coin].addresses, "btc");
-  let depositTable = createDepositsTable(depositData[coin], "btc");
+  let addressTable = createAddressesTable(
+    depositData[coinDataName].addresses,
+    coin
+  );
+  let depositTable = createDepositsTable(depositData[coinDataName], coin);
 
   document.getElementById(`${coin}-chainHeight`).innerHTML =
     coinData.chainHeight;
@@ -45,6 +52,8 @@ function updateChainData(depositData, coin) {
 }
 
 function createAddressesTable(data, chainName) {
+  let linkName = chainName === "TBTC" ? "btc-testnet" : "btc";
+
   let table = document.createElement("table");
   let tbody = document.createElement("tbody");
 
@@ -62,7 +71,7 @@ function createAddressesTable(data, chainName) {
   table.appendChild(headerRow);
 
   for (let item of data) {
-    let addLink = `<a href="https://www.blockchain.com/explorer/addresses/${chainName}/${item.address}" target="_blank" >${item.address}</a>`;
+    let addLink = `<a href="https://live.blockcypher.com/${linkName}/address/${item.address}" target="_blank" >${item.address}</a>`;
 
     let row = document.createElement("tr");
     let pathCell = document.createElement("td");
@@ -80,6 +89,8 @@ function createAddressesTable(data, chainName) {
 
 function createDepositsTable(chainData, chainName) {
   let data = chainData.deposits;
+
+  let linkName = chainName === "TBTC" ? "btc-testnet" : "btc";
 
   let table = document.createElement("table");
   let tbody = document.createElement("tbody");
@@ -113,18 +124,18 @@ function createDepositsTable(chainData, chainName) {
   table.appendChild(headerRow);
 
   for (let item of data) {
-    let blockLink = `<a href="https://www.blockchain.com/explorer/blocks/${chainName}/${item.block}" target="_blank" >${item.block}</a>`;
-    let txLink = `<a href="https://www.blockchain.com/explorer/transactions/${chainName}/${
+    let blockLink = `<a href="https://live.blockcypher.com/${linkName}/block/${item.block}" target="_blank" >${item.block}</a>`;
+    let txLink = `<a href="https://live.blockcypher.com/${linkName}/tx/${
       item.txid
     }" target="_blank" >${item.txid.slice(0, 15)}...</a>`;
-    let addLink = `<a href="https://www.blockchain.com/explorer/addresses/${chainName}/${item.address}" target="_blank" >${item.address}</a>`;
+    let addLink = `<a href="https://live.blockcypher.com/${linkName}/address/${item.address}" target="_blank" >${item.address}</a>`;
     let confirmations =
       item.block === 0 ? "Unconfirmed" : chainData.chainHeight + 1 - item.block;
 
     let row = document.createElement("tr");
 
     let blockCell = document.createElement("td");
-    blockCell.innerHTML = blockLink;
+    blockCell.innerHTML = item.block === 0 ? "0" : blockLink;
     row.appendChild(blockCell);
 
     let confirmationsCell = document.createElement("td");
