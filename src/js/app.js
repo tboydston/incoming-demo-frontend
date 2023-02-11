@@ -1,5 +1,6 @@
 const dataURL = "https://incoming-demo.optimalprime.com/data/depositData.json";
 const refreshPeriod = 20000;
+const blockDifTolerance = 2;
 
 async function loadData() {
   try {
@@ -7,14 +8,17 @@ async function loadData() {
 
     let depositData = await depositDataResponse.json();
 
-    updateChainData(depositData, "BTC");
-    updateChainData(depositData, "TBTC");
+    await updateChainData(depositData, "BTC");
+    await updateChainData(depositData, "TBTC");
 
     document.getElementById(
       `lastDataRefresh`
     ).innerHTML = `Data refreshes every ${
       refreshPeriod / 1000
     } seconds. <br> Last Refresh: ${new Date()}`;
+
+    await getReferenceHeight(depositData.BTC.chainHeight, "BTC");
+    await getReferenceHeight(depositData.BTCt.chainHeight, "TBTC");
   } catch (error) {
     console.error("Error:", error);
   }
@@ -22,7 +26,7 @@ async function loadData() {
   setTimeout(loadData, refreshPeriod);
 }
 
-function updateChainData(depositData, coin) {
+async function updateChainData(depositData, coin) {
   const coinDataName = coin === "TBTC" ? "BTCt" : coin;
 
   document.getElementById(`${coin}-address-table`).innerHTML = "";
@@ -159,4 +163,43 @@ function createDepositsTable(chainData, chainName) {
 
   table.appendChild(tbody);
   return table;
+}
+
+async function getReferenceHeight(height, chain) {
+  let link = `https://api.blockcypher.com/v1/btc/main`;
+
+  if (chain === "TBTC") {
+    link = `https://api.blockcypher.com/v1/btc/test3`;
+  }
+
+  try {
+    const refDataResponse = await fetch(link);
+
+    const refData = await refDataResponse.json();
+
+    if (refData.height > height + blockDifTolerance) {
+      console.warn(
+        `${chain} possibly out of sync by ${
+          refData.height - height
+        }. Our highest block ${height}, Blockcyphers heighest block ${
+          refData.height
+        }`
+      );
+      document
+        .getElementById(`${chain}-sync-warning`)
+        .classList.remove("d-none");
+      document.getElementById(
+        `${chain}-sync-warning`
+      ).innerHTML = `${chain} chain is out of sync by ${
+        refData.height - height
+      } blocks. Wallet node may be down for maintenance. Do not send deposits until in sync.`;
+    } else {
+      document.getElementById(`${chain}-sync-warning`).classList.add("d-none");
+      console.log(
+        `${chain} chain in sync. Our highest block ${height}, Blockcyphers heighest block ${refData.height}`
+      );
+    }
+  } catch (error) {
+    console.error("Error:", error);
+  }
 }
