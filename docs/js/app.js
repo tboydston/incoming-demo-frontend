@@ -1,6 +1,6 @@
 const dataURL = "https://incoming-demo.optimalprime.com/data/depositData.json";
 const refreshPeriod = 20000;
-const blockDifTolerance = 2;
+const expectBlockTime = 1000 * 60 * 90;
 
 async function loadData() {
   try {
@@ -17,8 +17,8 @@ async function loadData() {
       refreshPeriod / 1000
     } seconds. <br> Last Refresh: ${new Date()}`;
 
-    await getReferenceHeight(depositData.BTC.chainHeight, "BTC");
-    await getReferenceHeight(depositData.BTCt.chainHeight, "TBTC");
+    await checkSync(depositData.BTC.lastBlockTime, "BTC");
+    await checkSync(depositData.BTCt.lastBlockTime, "TBTC");
   } catch (error) {
     console.error("Error:", error);
   }
@@ -165,41 +165,27 @@ function createDepositsTable(chainData, chainName) {
   return table;
 }
 
-async function getReferenceHeight(height, chain) {
-  let link = `https://api.blockcypher.com/v1/btc/main`;
-
-  if (chain === "TBTC") {
-    link = `https://api.blockcypher.com/v1/btc/test3`;
-  }
-
-  try {
-    const refDataResponse = await fetch(link);
-
-    const refData = await refDataResponse.json();
-
-    if (refData.height > height + blockDifTolerance) {
-      console.warn(
-        `${chain} possibly out of sync by ${
-          refData.height - height
-        }. Our highest block ${height}, Blockcyphers heighest block ${
-          refData.height
-        }`
-      );
-      document
-        .getElementById(`${chain}-sync-warning`)
-        .classList.remove("d-none");
-      document.getElementById(
-        `${chain}-sync-warning`
-      ).innerHTML = `${chain} chain is out of sync by ${
-        refData.height - height
-      } blocks. Wallet node may be down for maintenance. Do not send deposits until in sync.`;
-    } else {
-      document.getElementById(`${chain}-sync-warning`).classList.add("d-none");
-      console.log(
-        `${chain} chain in sync. Our highest block ${height}, Blockcyphers heighest block ${refData.height}`
-      );
-    }
-  } catch (error) {
-    console.error("Error:", error);
+async function checkSync(lastBlockTime, chain) {
+  if (Date.now() - expectBlockTime > lastBlockTime) {
+    console.warn(
+      `${chain} possibly out of sync. No new blocks in ${Math.trunc(
+        (Date.now() - lastBlockTime) / 60000
+      )} minutes.`
+    );
+    document.getElementById(`${chain}-sync-warning`).classList.remove("d-none");
+    document.getElementById(
+      `${chain}-sync-warning`
+    ).innerHTML = `${chain} possibly out of sync. Do not sent deposits. No new blocks in ${Math.trunc(
+      (Date.now() - lastBlockTime) / 60000
+    )} minutes. Wallet node may be down for maintenance.`;
+  } else {
+    document.getElementById(`${chain}-sync-warning`).classList.add("d-none");
+    console.log(
+      `${chain} chain in sync. Last block synced ${Math.trunc(
+        (Date.now() - lastBlockTime) / 60000
+      )} minutes ago. Warning tolerance ${Math.trunc(
+        expectBlockTime / 60000
+      )} minutes`
+    );
   }
 }
